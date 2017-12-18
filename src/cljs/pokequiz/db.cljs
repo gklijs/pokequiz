@@ -1,5 +1,5 @@
 (ns pokequiz.db)
 
 (def default-db
-  {:name "re-frame"
-   :result "non"})
+  {:result "non"
+   :score  0})
