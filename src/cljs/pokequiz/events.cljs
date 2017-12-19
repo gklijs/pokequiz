@@ -10,13 +10,37 @@
 
 (defn successful-try
   [db]
-  db
-  )
+  (let [new-db (-> db
+                   (update :score inc)
+                   (update :total-tries inc)
+                   (assoc :tries-left nil))]
+    (if
+      (= 10 (:score new-db))
+      (-> new-db
+          (assoc :re-start-enabled true)
+          (assoc :question {:finished true}))
+      (assoc new-db :next-enabled true))))
+
+(defn clean-selection
+  [options]
+  (mapv #(assoc % :selected false) options))
+
+(defn set-awnser
+  [answer options]
+  (mapv #(assoc % :selected (contains? answer (:answer-id %))) options))
 
 (defn failed-try
   [db]
-  db
-  )
+  (if (= 1 (:tries-left db))
+    (-> db
+        (update :total-tries inc)
+        (assoc :tries-left nil)
+        (assoc :next-enabled true)
+        (update :options (partial set-awnser (get-in db [:question :answer]))))
+    (-> db
+        (update :tries-left dec)
+        (update :total-tries inc)
+        (update :options clean-selection))))
 
 (re-frame/reg-event-db
   ::initialize-db
@@ -36,14 +60,16 @@
 (re-frame/reg-event-db
   :select
   (fn [db [_ id]]
-    (let [new-db (update-in db [:options id :selected] not)
-          selection (get-selected (:options new-db))
-          answer (get-in db [:question :answer])]
-      (if (= (count selection) (count answer))
-        (if (= selection answer)
-          (successful-try new-db)
-          (failed-try new-db))
-        new-db))))
+    (if (:tries-left db)
+      (let [new-db (update-in db [:options id :selected] not)
+            selection (get-selected (:options new-db))
+            answer (get-in db [:question :answer])]
+        (if (= (count selection) (count answer))
+          (if (= selection answer)
+            (successful-try new-db)
+            (failed-try new-db))
+          new-db))
+      db)))
 
 (re-frame/reg-event-db
   ::next-question
@@ -51,4 +77,6 @@
     (generate)
     (-> db
         (assoc :next-enabled false)
-        (assoc :tries-left 3))))
+        (assoc :tries-left 3)
+        (assoc :options nil)
+        (assoc :question {:waiting true}))))
