@@ -1,41 +1,45 @@
 (ns pokequiz.views
   (:require [re-frame.core :as re-frame]
-            [pokequiz.pokedex :as pokedex]
+            [pokequiz.events :as events]
             [pokequiz.subs :as subs]))
 
 (defn option-notification
   [option]
-  [:div.tile.is-child {:key (str "item-id-" (:id option))}
+  [:a.tile.is-child {:key (str "item-id-" (:id option)) :on-click #(re-frame/dispatch [:select (:answer-id option)])}
    [:figure.image.is-1by1.notification
-    [:img {:src (:img-src option) :title (:name option) :alt (:name option)}]]])
+    [:img {:src (:img-src option) :title (:name option) :alt (:name option) :style {:opacity (if (:selected option) 1 0.5)}}]]])
 
 (defn main-panel []
   [:div.tile.is-ancestor
    [:div.tile.is-vertical
     [:div.tile
      [:div.tile.is-4.is-parent
-      (let [score (re-frame/subscribe [::subs/score])]
-        [:article.tile.is-child.notification.is-info
-         [:p.title "Current score: " @score]])]
+      [:article.tile.is-child.notification.is-info
+       (let [score (re-frame/subscribe [::subs/score])]
+         [:p.title "Current score: " @score])
+       (let [tt (re-frame/subscribe [::subs/total-tries])]
+         [:p.subtitle "Total tries is " @tt])
+       (let [tries (re-frame/subscribe [::subs/tries-left])]
+         (if @tries [:p.subtitle "You can try " @tries " more times."]))]]
      [:div.tile.is-8.is-parent
-      (let [question (re-frame/subscribe [::subs/question])]
-        [:article.tile.is-child.notification.is-warning
-         (if (:entity @question)
-           [:p.title "Which are the " (count (:answer @question)) " " (:entity @question) " for which " (:property @question) " is " (:value @question) " ?"]
-           [:p.title "As soon as we fetched some data from the server, a question will pop up"]
-           )])]]
+      [:article.tile.is-child.notification.is-warning
+       (let [question (re-frame/subscribe [::subs/question])
+             nr (count (:answer @question))]
+         (if (:answer @question)
+           [:p.title "Which " (if (= nr 1) "is" "are") " the " (count (:answer @question)) " pokemon where " (:property @question) " is " (:value @question) " ?"]
+           [:div
+            [:p.title "As soon as you press the next question button, we start getting data to generate a question, this can take a while."]
+            [:p.subtitle "You have 3 chances to get a question right. You (de)select pokemon by clinking on them.
+            When you have selected the asked amount the answer is evaluated."]]))
+       (let [show (re-frame/subscribe [::subs/next-enabled])]
+         (if @show
+           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch [::events/next-question])} "Next question"]))
+       (let [show (re-frame/subscribe [::subs/re-start-enabled])]
+         (if @show
+           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch-sync [::events/initialize-db])} "Restart game"]))]]]
     [:div.tile
      (let [options (re-frame/subscribe [::subs/options])
-           parts (partition 3 3 @options)]
-       (if (= (count parts) 3)
-       (for [row (range 3)] [:div.tile.is-4.is-parent.is-vertical {:key (str "row-" row)}
-                          (for [opt-n (nth parts row)] (option-notification opt-n))])))]
-    [:div.tile
-     [:div.tile.is-parent
-      (let [result (re-frame/subscribe [::subs/result])]
-        [:div.tile.is-child.notification
-         [:div "Result is " @result]
-         [:button.button.is-success.is-outlined
-          {:on-click #(pokedex/next-question)} "test"]
-         ])]
-     ]]])
+           parts (partition 2 @options)]
+       (if (= (count parts) 4)
+         (for [row (range 4)] [:div.tile.is-3.is-parent.is-vertical {:key (str "row-" row)}
+                               (for [opt-n (nth parts row)] (option-notification opt-n))])))]]])

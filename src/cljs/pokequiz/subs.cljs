@@ -7,11 +7,6 @@
     (:options db)))
 
 (re-frame/reg-sub
-  ::result
-  (fn [db]
-    (:result db)))
-
-(re-frame/reg-sub
   ::question
   (fn [db]
     (:question db)))
@@ -20,3 +15,23 @@
   ::score
   (fn [db]
     (:score db)))
+
+(re-frame/reg-sub
+  ::total-tries
+  (fn [db]
+    (:total-tries db)))
+
+(re-frame/reg-sub
+  ::tries-left
+  (fn [db]
+    (:tries-left db)))
+
+(re-frame/reg-sub
+  ::next-enabled
+  (fn [db]
+    (:next-enabled db)))
+
+(re-frame/reg-sub
+  ::re-start-enabled
+  (fn [db]
+    (:re-start-enabled db)))

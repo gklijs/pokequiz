@@ -1,5 +1,7 @@
 (ns pokequiz.db)
 
 (def default-db
-  {:result "non"
-   :score  0})
+  {:score            0
+   :total-tries      0
+   :next-enabled     true
+   :re-start-enabled false})
