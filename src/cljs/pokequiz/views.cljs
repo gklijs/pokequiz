@@ -28,14 +28,12 @@
          (cond
            (:answer @question)
            [:p.title "Which " (if (= nr 1) "is" "are") " the " (count (:answer @question)) " pokemon where " (:property @question) " is " (:value @question) "?"]
-           (:waiting @question)
-           [:p.title "Waiting for the new question to load."]
            (:finished @question)
            [:p.title "Well done, now get your present from the bottom drawer in Gerard's room."]
            :else
            [:div
-            [:p.title "As soon as you press the next question button, we start getting data to generate a question, this can take a while."]
-            [:p.subtitle "You have 3 chances to get a question right. You (de)select pokemon by clinking on them.
+            [:p.title "As soon the first question is ready, a button appears. This could take a while. With this button you can go to the next question."]
+            [:p.subtitle "You have 3 chances to get a question right. You (de)select pokemon by clicking on them.
             When you have selected the asked amount the answer is evaluated."]]))
        (let [show (re-frame/subscribe [::subs/next-enabled])]
          (if @show

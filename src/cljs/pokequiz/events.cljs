@@ -14,12 +14,11 @@
                    (update :score inc)
                    (update :total-tries inc)
                    (assoc :tries-left nil))]
-    (if
-      (= 10 (:score new-db))
-      (-> new-db
-          (assoc :re-start-enabled true)
-          (assoc :question {:finished true}))
-      (assoc new-db :next-enabled true))))
+    (cond (= 10 (:score new-db)) (-> new-db
+                                     (assoc :re-start-enabled true)
+                                     (assoc :question {:finished true}))
+          (:next db) (assoc new-db :next-enabled true)
+          :else (assoc new-db :show-next-when-ready true))))
 
 (defn clean-selection
   [options]
@@ -32,11 +31,17 @@
 (defn failed-try
   [db]
   (if (= 1 (:tries-left db))
-    (-> db
-        (update :total-tries inc)
-        (assoc :tries-left nil)
-        (assoc :next-enabled true)
-        (update :options (partial set-awnser (get-in db [:question :answer]))))
+    (if (:next db)
+      (-> db
+          (update :total-tries inc)
+          (assoc :tries-left nil)
+          (assoc :next-enabled true)
+          (update :options (partial set-awnser (get-in db [:question :answer]))))
+      (-> db
+          (update :total-tries inc)
+          (assoc :tries-left nil)
+          (assoc :show-next-when-ready true)
+          (update :options (partial set-awnser (get-in db [:question :answer])))))
     (-> db
         (update :tries-left dec)
         (update :total-tries inc)
@@ -48,14 +53,14 @@
     db/default-db))
 
 (re-frame/reg-event-db
-  :set-options
-  (fn [db [_ options]]
-    (assoc db :options options)))
-
-(re-frame/reg-event-db
-  :set-question
-  (fn [db [_ question]]
-    (assoc db :question question)))
+  :set-next
+  (fn [db [_ next]]
+    (if (:show-next-when-ready db)
+      (-> db
+          (assoc :show-next-when-ready false)
+          (assoc :next next)
+          (assoc :next-enabled true))
+      (assoc db :next next))))
 
 (re-frame/reg-event-db
   :select
@@ -74,9 +79,14 @@
 (re-frame/reg-event-db
   ::next-question
   (fn [db [_ _]]
-    (generate)
-    (-> db
-        (assoc :next-enabled false)
-        (assoc :tries-left 3)
-        (assoc :options nil)
-        (assoc :question {:waiting true}))))
+    (if-let [next (:next db)]
+      (do
+        (generate)
+        (-> db
+            (assoc :next-question nil)
+            (assoc :next-options nil)
+            (assoc :question (first next))
+            (assoc :options (second next))
+            (assoc :next-enabled false)
+            (assoc :tries-left 3)))
+      db)))

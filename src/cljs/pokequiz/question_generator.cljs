@@ -19,13 +19,13 @@
               (f result)))))))
 
 (defn random-pokemon-ids
-  ([total] (random-pokemon-ids total []))
-  ([total list]
-   (let [new-list (dedupe (conj list (+ 1 (rand-int 801))))]
+  ([total] (random-pokemon-ids total #{}))
+  ([total id-set]
+   (let [new-set (conj id-set (+ 1 (rand-int 801)))]
      (if
-       (= total (count new-list))
-       new-list
-       (recur total new-list)))))
+       (= total (count new-set))
+       new-set
+       (recur total new-set)))))
 
 (defn id-part
   [v]
@@ -47,11 +47,6 @@
               (assoc :img-src (str "https://assets.pokemon.com/assets/cms2/img/pokedex/detail/" (id-part v) ".png"))
               (assoc :selected false))))
 
-(defn set-options
-  [result]
-  (let [options (reduce-kv option-reducer [] result)]
-    (re-frame/dispatch [:set-options options])))
-
 (defn question-reducer
   [f c k v]
   (if (f v) (conj c k) c))
@@ -68,15 +63,16 @@
 
 (def question-functions [get-type-question])
 
-(defn set-question
+(defn get-question
   [result]
   (let [question-function (rand-nth question-functions)]
-    (re-frame/dispatch [:set-question (question-function result)])))
+    (question-function result)))
 
 (defn process-pokemon
   [result]
-  (set-question result)
-  (set-options result))
+  (let [question (get-question result)
+        options (reduce-kv option-reducer [] result)]
+    (re-frame/dispatch [:set-next [question options]])))
 
 (defn generate
   []

@@ -2,6 +2,7 @@
   (:require [reagent.core :as reagent]
             [re-frame.core :as re-frame]
             [pokequiz.events :as events]
+            [pokequiz.question-generator :refer [generate]]
             [pokequiz.views :as views]
             [pokequiz.config :as config]))
 
@@ -18,5 +19,6 @@
 
 (defn ^:export init []
   (re-frame/dispatch-sync [::events/initialize-db])
+  (generate)
   (dev-setup)
   (mount-root))
