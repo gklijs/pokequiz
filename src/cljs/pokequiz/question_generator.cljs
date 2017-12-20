@@ -7,17 +7,13 @@
 
 (defonce cache (atom {}))
 
-(defn add-random
-  [coll value]
-  (let [split-coll (split-at (rand-int (count coll)) coll)]
-    (flatten [(first split-coll) value (second split-coll)])))
+(def url-types {:nm "http://localhost:8000/api/v2/pokemon/" :sp "http://localhost:8000/api/v2/pokemon-species/"})
 
 (defn do-on-get
   [f href]
   (if-let [result-from-cache (get @cache href)]
     (f result-from-cache)
-    (go (let [response (<! (http/get href
-                                     {:with-credentials? false}))]
+    (go (let [response (<! (http/get href {:with-credentials? false}))]
           (if
             (= 200 (:status response))
             (let [result (:body response)
@@ -25,8 +21,8 @@
               (f result)))))))
 
 (defn do-pokemon-by-id
-  [f id]
-  (do-on-get f (str "http://localhost:8000/api/v2/pokemon/" id)))
+  [f u-key id]
+  (do-on-get f (str (u-key url-types) id)))
 
 (defn random-pokemon-ids
   ([total] (random-pokemon-ids total #{}))
@@ -59,45 +55,100 @@
      :has-value-f has-ability-f
      :more-url    (:url ability)}))
 
-(def question-functions [get-type-question get-ability-question])
+(defn get-habitat-question
+  [pokemon]
+  (let [habitat (:habitat pokemon)
+        val (:name habitat)]
+    {:property    "habitat"
+     :value       val
+     :has-value-f (fn [r] (= val (get-in r [:habitat :name])))
+     :more-url    (:url habitat)}))
+
+(defn get-color-question
+  [pokemon]
+  (let [color (:color pokemon)
+        val (:name color)]
+    {:property    "color"
+     :value       val
+     :has-value-f (fn [r] (= val (get-in r [:color :name])))
+     :more-url    (:url color)}))
+
+(defn get-shape-question
+  [pokemon]
+  (let [shape (:shape pokemon)
+        val (:name shape)]
+    {:property    "shape"
+     :value       val
+     :has-value-f (fn [r] (= val (get-in r [:shape :name])))
+     :more-url    (:url shape)}))
+
+(defn get-generation-question
+  [pokemon]
+  (let [generation (:generation pokemon)
+        val (:name generation)]
+    {:property    "generation"
+     :value       val
+     :has-value-f (fn [r] (= val (get-in r [:generation :name])))
+     :more-url    (:url generation)}))
+
+(def question-functions
+  {:nm [get-type-question get-ability-question]
+   :sp [get-habitat-question get-color-question get-shape-question get-generation-question]})
 
 (defn get-question
-  [pokemon]
-  (let [question-function (rand-nth question-functions)]
-    (question-function pokemon)))
+  [pokemon u-key]
+  (let [question-function (rand-nth (u-key question-functions))
+        question (question-function pokemon)]
+    (if (:value question)
+      question
+      (recur pokemon u-key))))
 
 (defn id-from-url
   [url]
   (int (last (string/split url #"/"))))
 
-(defn add-from-list [result-list to-add ids add-to-result loops]
+(defn get-rnd-pokemon
+  [list u-type]
+  (cond
+    (= u-type :nm)(:pokemon (rand-nth (:pokemon list)))
+    (= u-type :sp)(rand-nth (:pokemon_species list))
+    :else nil))
+
+(defn add-from-list [result-list u-key to-add ids add-to-result loops]
   (if (= 10 loops)
     (let [add-random-ids (random-pokemon-ids (+ (count ids) to-add )ids)
           added (remove ids add-random-ids)]
-      (doseq [id added] (do-pokemon-by-id add-to-result id)))
-    (let [pokemon (:pokemon (rand-nth (:pokemon result-list)))
+      (doseq [id added] (do-pokemon-by-id add-to-result u-key id)))
+    (let [pokemon (get-rnd-pokemon result-list u-key)
           id (id-from-url (:url pokemon))]
-      (if (or (contains? ids id) (> id 802))
-        (recur result-list to-add ids add-to-result (inc loops))
+      (if (or (nil? id)(contains? ids id) (> id 802))
+        (recur result-list u-key to-add ids add-to-result (inc loops))
         (let [p-rep {:name (:name pokemon) :id id :valid-answer true}
               _ (add-to-result p-rep)]
           (if (not (= 1 to-add))
-            (recur result-list (dec to-add) (conj ids id) add-to-result (inc loops))))))))
+            (recur result-list u-key (dec to-add) (conj ids id) add-to-result (inc loops))))))))
 
 (defn set-question
-  [pokemon question add-to-result ids]
-  (let [new-question (reset! question (get-question pokemon))]
-    (do-on-get #(add-from-list % 2 ids add-to-result 0) (:more-url new-question))))
+  [pokemon u-key question add-to-result ids]
+  (let [new-question (reset! question (get-question pokemon u-key))]
+    (do-on-get #(add-from-list % u-key 2 ids add-to-result 0) (:more-url new-question))))
+
+(defn get-id
+  [v]
+  (if-let [id (:id v)]
+    id
+    (if-let [varieties (:varieties v)]
+      (if-let [defaults (filter #(true? (:is_default %)) varieties)]
+        (id-from-url (:url (first defaults)))))))
 
 (defn id-part
   [v]
-  (let [id (:id v)]
+  (let [id (get-id v)]
     (cond
       (> id 99) id
       (> id 9) (str "0" id)
       (> id 0) (str "00" id)
-      :else "000"
-      )))
+      :else "000")))
 
 (defn option-reducer
   "docstring"
@@ -128,12 +179,18 @@
         options (reduce-kv option-reducer [] v-result)]
     (re-frame/dispatch [:set-next [new-question options]])))
 
+(defn add-random
+  [coll value]
+  (let [split-coll (split-at (rand-int (count coll)) coll)]
+    (flatten [(first split-coll) value (second split-coll)])))
+
 (defn generate
   []
   (let [ids (random-pokemon-ids 6)
+        u-key (rand-nth (keys url-types))
         result (atom [])
         add-to-result (fn [item] (swap! result #(add-random % item)))
         question (atom nil)]
-    (add-watch result :on-first (fn [_ _ _ n] (if (= 1 (count n)) (set-question (first n) question add-to-result ids))))
+    (add-watch result :on-first (fn [_ _ _ n] (if (= 1 (count n)) (set-question (first n) u-key question add-to-result ids))))
     (add-watch result :when-done (fn [_ _ _ n] (if (= 8 (count n)) (process-pokemon question n))))
-    (doseq [id ids] (do-pokemon-by-id add-to-result id))))
+    (doseq [id ids] (do-pokemon-by-id add-to-result u-key id))))

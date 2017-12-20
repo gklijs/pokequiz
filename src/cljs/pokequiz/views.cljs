@@ -40,7 +40,7 @@
            [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch [::events/next-question])} "Next question"]))
        (let [show (re-frame/subscribe [::subs/re-start-enabled])]
          (if @show
-           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch-sync [::events/initialize-db])} "Restart game"]))]]]
+           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch-sync [::events/re-start])} "Restart game"]))]]]
     [:div.tile
      (let [options (re-frame/subscribe [::subs/options])
            parts (partition 2 @options)]

@@ -53,6 +53,11 @@
     db/default-db))
 
 (re-frame/reg-event-db
+  ::re-start
+  (fn [_ _]
+    (assoc db/default-db :next-enabled true)))
+
+(re-frame/reg-event-db
   :set-next
   (fn [db [_ next]]
     (if (:show-next-when-ready db)
