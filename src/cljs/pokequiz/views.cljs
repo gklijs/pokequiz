@@ -5,7 +5,7 @@
 
 (defn option-notification
   [option]
-  [:a.tile.is-child {:key (str "item-id-" (:id option)) :on-click #(re-frame/dispatch [:select (:answer-id option)])}
+  [:a.tile.is-child {:key (str "item-id-" (:id option)) :on-click #(re-frame/dispatch [:select (:id option)])}
    [:figure.image.is-1by1.notification
     [:img {:src (:img-src option) :title (:name option) :alt (:name option) :style {:opacity (if (:selected option) 1 0.5)}}]]])
 
@@ -29,7 +29,7 @@
            (:answer @question)
            [:p.title "Which " (if (= nr 1) "is" "are") " the " (count (:answer @question)) " pokemon where " (:property @question) " is " (:value @question) "?"]
            (:finished @question)
-           [:p.title "Well done, now get your present from the bottom drawer in Gerard's room."]
+           [:p.title "Well done you got the right answer 10 times, you can play again, as the questions will be different each time."]
            :else
            [:div
             [:p.title "As soon the first question is ready, a button appears. This could take a while. With this button you can go to the next question."]

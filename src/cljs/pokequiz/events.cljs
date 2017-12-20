@@ -6,7 +6,7 @@
 (defn get-selected
   [options]
   (let [sel-options (filter #(:selected %) options)]
-    (set (map #(:answer-id %) sel-options))))
+    (set (map #(:id %) sel-options))))
 
 (defn successful-try
   [db]
@@ -26,7 +26,7 @@
 
 (defn set-awnser
   [answer options]
-  (mapv #(assoc % :selected (contains? answer (:answer-id %))) options))
+  (mapv #(assoc % :selected (contains? answer (:id %))) options))
 
 (defn failed-try
   [db]
