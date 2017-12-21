@@ -180,7 +180,7 @@
 
 (defn add-random
   [coll value]
-  (let [split-coll (split-at (rand-int (count coll)) coll)]
+  (let [split-coll (split-at (rand-int (+ 1 (count coll))) coll)]
     (flatten [(first split-coll) value (second split-coll)])))
 
 (defn generate
