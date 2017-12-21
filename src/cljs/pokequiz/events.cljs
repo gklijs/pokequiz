@@ -55,7 +55,8 @@
 (re-frame/reg-event-db
   ::re-start
   (fn [_ _]
-    (assoc db/default-db :next-enabled true)))
+    (generate)
+    db/default-db))
 
 (re-frame/reg-event-db
   :set-next
