@@ -50,7 +50,7 @@
         val (:name ability)
         has-ability-f (fn [r] (let [abilities (:abilities r)]
                                 (< 0 (count (filter #(= val (get-in % [:ability :name])) abilities)))))]
-    {:property    "ability"
+    {:property    "vermogen"
      :value       val
      :has-value-f has-ability-f
      :more-url    (:url ability)}))
@@ -59,7 +59,7 @@
   [pokemon]
   (let [habitat (:habitat pokemon)
         val (:name habitat)]
-    {:property    "habitat"
+    {:property    "leefgebied"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:habitat :name])))
      :more-url    (:url habitat)}))
@@ -68,7 +68,7 @@
   [pokemon]
   (let [color (:color pokemon)
         val (:name color)]
-    {:property    "color"
+    {:property    "kleur"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:color :name])))
      :more-url    (:url color)}))
@@ -77,7 +77,7 @@
   [pokemon]
   (let [shape (:shape pokemon)
         val (:name shape)]
-    {:property    "shape"
+    {:property    "vorm"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:shape :name])))
      :more-url    (:url shape)}))
@@ -86,7 +86,7 @@
   [pokemon]
   (let [generation (:generation pokemon)
         val (:name generation)]
-    {:property    "generation"
+    {:property    "generatie"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:generation :name])))
      :more-url    (:url generation)}))
@@ -151,7 +151,6 @@
       :else "000")))
 
 (defn option-reducer
-  "docstring"
   [c k v]
   (conj c (-> {}
               (assoc :id k)

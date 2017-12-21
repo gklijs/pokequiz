@@ -16,31 +16,31 @@
      [:div.tile.is-4.is-parent
       [:article.tile.is-child.notification.is-info
        (let [score (re-frame/subscribe [::subs/score])]
-         [:p.title "Current score: " @score])
+         [:p.title "Score: " @score])
        (let [tt (re-frame/subscribe [::subs/total-tries])]
-         [:p.subtitle "Total tries is " @tt])
+         [:p.subtitle "Totaal aantal pogingen is: " @tt])
        (let [tries (re-frame/subscribe [::subs/tries-left])]
-         (if @tries [:p.subtitle "You can try " @tries " more times."]))]]
+         (if @tries [:p.subtitle "Je hebt voor deze vraag nog " @tries " pogingen."]))]]
      [:div.tile.is-8.is-parent
       [:article.tile.is-child.notification.is-warning
        (let [question (re-frame/subscribe [::subs/question])
              nr (count (:answer @question))]
          (cond
            (:answer @question)
-           [:p.title "Which " (if (= nr 1) "is" "are") " the " (count (:answer @question)) " pokemon where " (:property @question) " is " (:value @question) "?"]
+           [:p.title "Welke " (count (:answer @question)) " pokemon " (if (= nr 1) "heeft" "hebben") " voor de eigenschap " (:property @question) " de waarde '" (:value @question) "'?"]
            (:finished @question)
-           [:p.title "Well done you got the right answer 10 times, you can play again, as the questions will be different each time."]
+           [:p.title "Goed gedaan Viento, je cadeau ligt in de onderste la op Gerard zijn kamer"]
            :else
            [:div
-            [:p.title "As soon the first question is ready, a button appears. This could take a while. With this button you can go to the next question."]
-            [:p.subtitle "You have 3 chances to get a question right. You (de)select pokemon by clicking on them.
-            When you have selected the asked amount the answer is evaluated."]]))
+            [:p.title "Het duurt even voor je naar de eerste vraag kan. Zodra hij klaar is verschijnt vanzelf de knop."]
+            [:p.subtitle "Je hebt voor iedere vraag drie kansen om het goede antwoord te geven. Je kun pokemon (de)selecteren door ze aan te klikken.
+            na drie keer wordt het antwoord gegeven, maar krijg je geen punt. Probeer met zo min mogelijk pogingen 10 goede antwoorden te geven."]]))
        (let [show (re-frame/subscribe [::subs/next-enabled])]
          (if @show
-           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch [::events/next-question])} "Next question"]))
+           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch [::events/next-question])} "Volgende vraag"]))
        (let [show (re-frame/subscribe [::subs/re-start-enabled])]
          (if @show
-           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch-sync [::events/re-start])} "Restart game"]))]]]
+           [:button.button.is-outlined.is-pulled-right {:on-click #(re-frame/dispatch-sync [::events/re-start])} "Herstart spel"]))]]]
     [:div.tile
      (let [options (re-frame/subscribe [::subs/options])
            parts (partition 2 @options)]
