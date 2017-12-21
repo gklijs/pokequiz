@@ -12,7 +12,6 @@
   {:dev
    {:dependencies [[binaryage/devtools "0.9.8"]
                    [cljs-http "0.1.44"]
-                   [day8.re-frame/trace "0.1.13"]
                    [re-frisk "0.5.3"]]
     :plugins      [[lein-figwheel "0.5.14"]]}}
   :cljsbuild
@@ -26,7 +25,6 @@
                     :asset-path           "js/compiled/out"
                     :source-map-timestamp true
                     :preloads             [devtools.preload
-                                           day8.re-frame.trace.preload
                                            re-frisk.preload]
                     :closure-defines      {"re_frame.trace.trace_enabled_QMARK_" true}
                     :external-config      {:devtools/config {:features-to-install :all}}
