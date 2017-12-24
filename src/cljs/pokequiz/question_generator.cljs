@@ -7,7 +7,7 @@
 
 (defonce cache (atom {}))
 
-(def url-types {:nm "http://localhost:8000/api/v2/pokemon/" :sp "http://localhost:8000/api/v2/pokemon-species/"})
+(def url-types {:nm "https://pokeapi.co/api/v2/pokemon/" :sp "https://pokeapi.co/api/v2/pokemon-species/"})
 
 (defn do-on-get
   [f href]
