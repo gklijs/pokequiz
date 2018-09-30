@@ -22,7 +22,7 @@
 
 (defn do-pokemon-by-id
   [f u-key id]
-  (do-on-get f (str (u-key url-types) id)))
+  (do-on-get f (str (u-key url-types) id "/")))
 
 (defn random-pokemon-ids
   ([total] (random-pokemon-ids total #{}))
