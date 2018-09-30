@@ -110,18 +110,18 @@
 (defn get-rnd-pokemon
   [list u-type]
   (cond
-    (= u-type :nm)(:pokemon (rand-nth (:pokemon list)))
-    (= u-type :sp)(rand-nth (:pokemon_species list))
+    (= u-type :nm) (:pokemon (rand-nth (:pokemon list)))
+    (= u-type :sp) (rand-nth (:pokemon_species list))
     :else nil))
 
 (defn add-from-list [result-list u-key to-add ids add-to-result loops]
   (if (= 10 loops)
-    (let [add-random-ids (random-pokemon-ids (+ (count ids) to-add )ids)
+    (let [add-random-ids (random-pokemon-ids (+ (count ids) to-add) ids)
           added (remove ids add-random-ids)]
       (doseq [id added] (do-pokemon-by-id add-to-result u-key id)))
     (let [pokemon (get-rnd-pokemon result-list u-key)
           id (id-from-url (:url pokemon))]
-      (if (or (nil? id)(contains? ids id) (> id 802))
+      (if (or (nil? id) (contains? ids id) (> id 802))
         (recur result-list u-key to-add ids add-to-result (inc loops))
         (let [p-rep {:name (:name pokemon) :id id :valid-answer true}
               _ (add-to-result p-rep)]

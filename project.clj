@@ -1,8 +1,8 @@
 (defproject pokequiz "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.9.946"]
-                 [reagent "0.7.0"]
-                 [re-frame "0.10.2"]]
+                 [org.clojure/clojurescript "1.10.339"]
+                 [reagent "0.8.1"]
+                 [re-frame "0.10.6"]]
   :plugins [[lein-cljsbuild "1.1.5"]]
   :min-lein-version "2.5.3"
   :source-paths ["src/clj"]
@@ -10,9 +10,9 @@
   :figwheel {:css-dirs ["resources/public/css"]}
   :profiles
   {:dev
-   {:dependencies [[binaryage/devtools "0.9.8"]
-                   [cljs-http "0.1.44"]
-                   [re-frisk "0.5.3"]]
+   {:dependencies [[binaryage/devtools "0.9.10"]
+                   [cljs-http "0.1.45"]
+                   [re-frisk "0.5.4"]]
     :plugins      [[lein-figwheel "0.5.14"]]}}
   :cljsbuild
   {:builds
