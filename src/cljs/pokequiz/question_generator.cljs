@@ -13,7 +13,7 @@
   [f href]
   (if-let [result-from-cache (get @cache href)]
     (f result-from-cache)
-    (go (let [response (<! (http/get href {:with-credentials? false}))]
+    (go (let [response (<! (http/get (str href "/") {:with-credentials? false}))]
           (if
             (= 200 (:status response))
             (let [result (:body response)
@@ -22,7 +22,7 @@
 
 (defn do-pokemon-by-id
   [f u-key id]
-  (do-on-get f (str (u-key url-types) id "/")))
+  (do-on-get f (str (u-key url-types) id)))
 
 (defn random-pokemon-ids
   ([total] (random-pokemon-ids total #{}))
