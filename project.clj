@@ -35,7 +35,6 @@
      :compiler     {:main            pokequiz.core
                     :output-to       "resources/public/js/compiled/app.js"
                     :optimizations   :advanced
-                    :externs         ["externs/pokeapi-js-wrapper.js"]
                     :closure-defines {goog.DEBUG false}
                     :pretty-print    false}}
     ]})
