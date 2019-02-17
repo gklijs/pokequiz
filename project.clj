@@ -1,6 +1,6 @@
 (defproject pokequiz "0.1.0-SNAPSHOT"
-  :dependencies [[org.clojure/clojure "1.9.0"]
-                 [org.clojure/clojurescript "1.10.339"]
+  :dependencies [[org.clojure/clojure "1.10.0"]
+                 [org.clojure/clojurescript "1.10.520"]
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]]
   :plugins [[lein-cljsbuild "1.1.5"]]
@@ -11,7 +11,7 @@
   :profiles
   {:dev
    {:dependencies [[binaryage/devtools "0.9.10"]
-                   [cljs-http "0.1.45"]
+                   [cljs-http "0.1.46"]
                    [re-frisk "0.5.4"]]
     :plugins      [[lein-figwheel "0.5.14"]]}}
   :cljsbuild
