@@ -33,6 +33,10 @@
        new-set
        (recur total new-set)))))
 
+(defn replace-url
+  [url-from-api]
+  (string/replace url-from-api "https://pokeapi.co/api/v2" "/api"))
+
 (defn get-type-question
   [pokemon]
   (let [type (:type (rand-nth (:types pokemon)))
@@ -42,7 +46,7 @@
     {:property    "type"
      :value       val
      :has-value-f has-type-f
-     :more-url    (:url type)}))
+     :more-url    (replace-url (:url type))}))
 
 (defn get-ability-question
   [pokemon]
@@ -53,7 +57,7 @@
     {:property    "ability"
      :value       val
      :has-value-f has-ability-f
-     :more-url    (:url ability)}))
+     :more-url    (replace-url (:url ability))}))
 
 (defn get-habitat-question
   [pokemon]
@@ -62,7 +66,7 @@
     {:property    "habitat"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:habitat :name])))
-     :more-url    (:url habitat)}))
+     :more-url    (replace-url (:url habitat))}))
 
 (defn get-color-question
   [pokemon]
@@ -71,7 +75,7 @@
     {:property    "color"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:color :name])))
-     :more-url    (:url color)}))
+     :more-url    (replace-url (:url color))}))
 
 (defn get-shape-question
   [pokemon]
@@ -80,7 +84,7 @@
     {:property    "shape"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:shape :name])))
-     :more-url    (:url shape)}))
+     :more-url    (replace-url (:url shape))}))
 
 (defn get-generation-question
   [pokemon]
@@ -89,7 +93,7 @@
     {:property    "generation"
      :value       val
      :has-value-f (fn [r] (= val (get-in r [:generation :name])))
-     :more-url    (:url generation)}))
+     :more-url    (replace-url (:url generation))}))
 
 (def question-functions
   {:nm [get-type-question get-ability-question]
